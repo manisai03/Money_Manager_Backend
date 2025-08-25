@@ -31,18 +31,34 @@ public class ProfileService {
     @Value("${app.activation.url}")
     private String activationURL;
 
-    public ProfileDTO registerProfile(ProfileDTO profileDTO){
+    public ProfileDTO registerProfile(ProfileDTO profileDTO) {
+        // Validate input
+        if (profileDTO.getPassword() == null || profileDTO.getPassword().isBlank()) {
+            throw new IllegalArgumentException("Password cannot be null or blank");
+        }
+        if (profileRepository.findByEmail(profileDTO.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email already exists. Please use a different one.");
+        }
+
 
         ProfileEntity newProfile = toEntity(profileDTO);
         newProfile.setActivationToken(UUID.randomUUID().toString());
+        newProfile.setIsActive(false); // new accounts inactive until activated
         newProfile = profileRepository.save(newProfile);
-        //send activation email
-        String activationLink=activationURL+"/activate?token="+ newProfile.getActivationToken();
-        String subject = "Activate your Money Manager account";
-        String body = "Click on the following link to activate your account: " + activationLink;
-        emailService.sendEmail(newProfile.getEmail(), subject, body);
+
+        // Send activation email (safe)
+        try {
+            String activationLink = activationURL + "/activate?token=" + newProfile.getActivationToken();
+            String subject = "Activate your Money Manager account";
+            String body = "Click the link to activate your account: " + activationLink;
+            emailService.sendEmail(newProfile.getEmail(), subject, body);
+        } catch (Exception e) {
+            System.err.println("Failed to send activation email: " + e.getMessage());
+        }
+
         return toDTO(newProfile);
     }
+
 
     public ProfileEntity toEntity(ProfileDTO profileDTO){
         return ProfileEntity.builder()
@@ -50,7 +66,7 @@ public class ProfileService {
                 .fullName(profileDTO.getFullName())
                 .email(profileDTO.getEmail())
                 .password(passwordEncoder.encode(profileDTO.getPassword()))
-                .profileImagerUrl(profileDTO.getProfileImageUrl())
+                .profileImageUrl(profileDTO.getProfileImageUrl())
                 .createdAt(profileDTO.getCreatedAt())
                 .updatedAt(profileDTO.getUpdatedAt())
                 .build();
@@ -61,7 +77,7 @@ public class ProfileService {
                 .id(profileEntity.getId())
                 .fullName(profileEntity.getFullName())
                 .email(profileEntity.getEmail())
-                .profileImageUrl(profileEntity.getProfileImagerUrl())
+                .profileImageUrl(profileEntity.getProfileImageUrl())
                 .createdAt(profileEntity.getCreatedAt())
                 .updatedAt(profileEntity.getUpdatedAt())
                 .build();
@@ -102,7 +118,7 @@ public class ProfileService {
                 .id(currentUser.getId())
                 .fullName(currentUser.getFullName())
                 .email(currentUser.getEmail())
-                .profileImageUrl(currentUser.getProfileImagerUrl())
+                .profileImageUrl(currentUser.getProfileImageUrl())
                 .createdAt(currentUser.getCreatedAt())
                 .updatedAt(currentUser.getUpdatedAt())
                 .build();

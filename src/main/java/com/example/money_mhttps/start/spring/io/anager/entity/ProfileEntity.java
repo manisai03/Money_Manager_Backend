@@ -24,7 +24,7 @@ public class ProfileEntity {
     @Column(unique=true)
     private String email;
     private String password;
-    private String profileImagerUrl;
+    private String profileImageUrl;
     @Column(updatable=false)
     @CreationTimestamp
     private LocalDateTime createdAt;
