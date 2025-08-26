@@ -60,7 +60,7 @@ public class ProfileService {
     }
 
 
-    public ProfileEntity toEntity(ProfileDTO profileDTO){
+    public ProfileEntity toEntity(ProfileDTO profileDTO) {
         return ProfileEntity.builder()
                 .id(profileDTO.getId())
                 .fullName(profileDTO.getFullName())
@@ -72,7 +72,7 @@ public class ProfileService {
                 .build();
     }
 
-    public ProfileDTO toDTO(ProfileEntity profileEntity){
+    public ProfileDTO toDTO(ProfileEntity profileEntity) {
         return ProfileDTO.builder()
                 .id(profileEntity.getId())
                 .fullName(profileEntity.getFullName())
@@ -83,7 +83,7 @@ public class ProfileService {
                 .build();
     }
 
-    public boolean activateProfile(String activateToken){
+    public boolean activateProfile(String activateToken) {
         return profileRepository.findByActivationToken(activateToken)
                 .map(profile -> {
                     profile.setIsActive(true);
@@ -93,25 +93,25 @@ public class ProfileService {
                 .orElse(false);
     }
 
-    public boolean isAccountActive(String email){
+    public boolean isAccountActive(String email) {
         return profileRepository.findByEmail(email)
                 .map(ProfileEntity::getIsActive)
                 .orElse(false);
     }
 
-    public ProfileEntity getCurrentProfile(){
+    public ProfileEntity getCurrentProfile() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return profileRepository.findByEmail(authentication.getName())
-                .orElseThrow(() ->new UsernameNotFoundException("Profile not found with email: "+ authentication.getName()));
+                .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: " + authentication.getName()));
     }
 
-    public ProfileDTO getPublicProfile(String email){
-        ProfileEntity currentUser=null;
-        if(email == null){
+    public ProfileDTO getPublicProfile(String email) {
+        ProfileEntity currentUser = null;
+        if (email == null) {
             currentUser = getCurrentProfile();
-        }else{
+        } else {
             currentUser = profileRepository.findByEmail(email)
-                    .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: "+ email));
+                    .orElseThrow(() -> new UsernameNotFoundException("Profile not found with email: " + email));
         }
 
         return ProfileDTO.builder()
@@ -139,6 +139,7 @@ public class ProfileService {
             throw new RuntimeException("Invalid email or password", e);
         }
     }
-
-
 }
+
+
+

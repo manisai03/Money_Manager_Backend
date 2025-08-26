@@ -41,14 +41,26 @@ public class CategoryService {
 
     public CategoryDTO updateCategory(Long categoryId, CategoryDTO dto) {
         ProfileEntity profile = profileService.getCurrentProfile();
+
         CategoryEntity existingCategory = categoryRepository.findByIdAndProfileId(categoryId, profile.getId())
                 .orElseThrow(() -> new RuntimeException("Category not found or not accessible"));
-        existingCategory.setName(dto.getName());
-        existingCategory.setIcon(dto.getIcon());
-        existingCategory.setType(dto.getType());
+
+        if (dto.getName() != null && !dto.getName().isBlank()) {
+            existingCategory.setName(dto.getName());
+        }
+
+        if (dto.getIcon() != null && !dto.getIcon().isBlank()) {
+            existingCategory.setIcon(dto.getIcon());
+        }
+
+        if (dto.getType() != null && !dto.getType().isBlank()) {
+            existingCategory.setType(dto.getType());
+        }
+
         existingCategory = categoryRepository.save(existingCategory);
         return toDTO(existingCategory);
     }
+
 
     private CategoryEntity toEntity(CategoryDTO categoryDTO, ProfileEntity profile) {
         return CategoryEntity.builder()
