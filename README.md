@@ -5,6 +5,7 @@ A RESTful API for managing personal finances. This backend handles user authenti
 🚀 Features:
 
 => User registration and login with JWT authentication
+
 => CRUD operations for incomes, expenses, and categories
 => Profile management (update user details, profile photo)
 => Email notifications for account activation
